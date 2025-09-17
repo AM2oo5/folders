@@ -11,10 +11,10 @@ fs.createReadStream('LE.txt')
 .on('end', () => {
 });
 
-app.get('/', (req, res) => {
+app.get('/spare-parts', (req, res) => {
   res.send(results);
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`http://localhost:${port}/spare-parts`);
 });
