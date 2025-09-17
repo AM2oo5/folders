@@ -8,6 +8,7 @@ const results = [];
 fs.createReadStream('LE.txt')
 .pipe(csv({ 
   separator: '\t',
+  // txt file'i otsime ainult neid headerid
   headers: ['number', 'name', 'price']
 }))
 .on('data', (data) => {
@@ -22,6 +23,7 @@ fs.createReadStream('LE.txt')
 });
 
 app.get('/spare-parts', (req, res) => {
+  // Required Query'd
   const { sn, name, price } = req.query;
   let filteredResults = results;
 
@@ -42,7 +44,7 @@ app.get('/spare-parts', (req, res) => {
       part.price && part.price.toLowerCase().includes(price.toLowerCase())
     );
   }
-
+  // valitud otsingus üks header prindib valja ka teised headerid välja. Vajadusel võib muuta kui vaja.
   const cleanResults = filteredResults.map(part => ({
     sn: part.number,
     name: part.name,
@@ -50,11 +52,11 @@ app.get('/spare-parts', (req, res) => {
   }));
 
   res.json({
-    
+    // prindib const cleanResults 
     results: cleanResults
   });
 });
-
+// Server 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/spare-parts`);
 });
