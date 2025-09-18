@@ -1,6 +1,7 @@
 const token = 'VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q'
 const apiUrl = 'https://demo2.z-bit.ee/tasks'
 
+// TODO checkbox ja texti muutmine
 
 async function getMethod(apiUrl) {
   try {
@@ -47,6 +48,29 @@ async function postMethod(apiUrl, data ) {
     throw error;
   }
 
+}
+
+async function putMethod(apiUrl, data) {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error('Error in PUT request:', error);
+        throw error;
+    }
 }
 
 async function deleteMethod(apiUrl) {
@@ -140,6 +164,14 @@ function createTask() {
     return task;
 }
 
+function debounce(updateApi, delay) {
+    let timeout;
+    return (...updatedData) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => updateApi(...updatedData), delay);
+    }
+}
+
 function createTaskRow(task) {
     let taskRow = document.querySelector('[data-template="task-row"]').cloneNode(true);
     taskRow.removeAttribute('data-template');
@@ -150,6 +182,29 @@ function createTaskRow(task) {
 
     const checkbox = taskRow.querySelector("[name='completed']");
     checkbox.checked = task.completed;
+
+     const updateTask = debounce(async () => {
+        try {
+            await putMethod(`${apiUrl}/${task.id}`, {
+
+                title: task.name,
+                marked_as_done: task.completed
+            });
+            console.log(`Task ${task.id} updated`);
+        } catch (err) {
+            console.error('Failed to update task:', err);
+        }
+    }, 500);
+
+    name.addEventListener('input', (e) => {
+        task.name = e.target.value;
+        updateTask();
+    });
+
+    checkbox.addEventListener('change', (e) => {
+        task.completed = e.target.checked;
+        updateTask();
+    });
 
     const deleteButton = taskRow.querySelector('.delete-task');
     deleteButton.addEventListener('click', async () => {
