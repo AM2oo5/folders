@@ -2,7 +2,7 @@ const token = 'VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q'
 const apiUrl = 'https://demo2.z-bit.ee/tasks'
 
 
-async function getWithBearer(apiUrl) {
+async function getMethod(apiUrl) {
   try {
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -24,7 +24,7 @@ async function getWithBearer(apiUrl) {
 }
 
 
-async function postWithBearer(apiUrl, data ) {
+async function postMethod(apiUrl, data ) {
   try {
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -49,11 +49,12 @@ async function postWithBearer(apiUrl, data ) {
 
 }
 
-async function deleteWithBearer(url) {
+async function deleteMethod(apiUrl) {
   try {
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl, {
       method: 'DELETE',
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q`
       }
     });
@@ -79,11 +80,25 @@ let addTask;
 
 // kui leht on brauseris laetud siis lisame esimesed taskid lehele
 window.addEventListener('load', async () => {
-    
-    taskList = document.querySelector('#task-list');
-    addTask = document.querySelector('#add-task');
+  taskList = document.querySelector('#task-list');
+  addTask = document.querySelector('#add-task');
 
+  try {
+    const getFetch = await getMethod(apiUrl);
+
+    tasks.length = 0;
+    tasks.push(...getFetch.map(taskData=> ({
+      id: taskData.id,
+      name: taskData.title,
+      completed: taskData.marked_as_done
+    })));
+
+    
     tasks.forEach(renderTask);
+
+  } catch (err) {
+    console.error('Failed to load tasks from API:', err);
+  }
 
     // kui nuppu vajutatakse siis lisatakse uus task
     addTask.addEventListener('click', async () => {
@@ -98,7 +113,7 @@ window.addEventListener('load', async () => {
     };
 
     try {
-      const result = await postWithBearer(apiUrl, apiPayload);
+      const result = await postMethod(apiUrl, apiPayload);
       console.log('Task saved to API:', result);
 
       task.id = result.id;
@@ -137,10 +152,10 @@ function createTaskRow(task) {
     checkbox.checked = task.completed;
 
     const deleteButton = taskRow.querySelector('.delete-task');
-deleteButton.addEventListener('click', async () => {
+    deleteButton.addEventListener('click', async () => {
   try {
     
-    await deleteWithBearer(`${apiUrl}/${task.id}`);
+    await deleteMethod(`${apiUrl}/${task.id}`);
     console.log(`Task ${task.id} deleted from API`);
 
     taskList.removeChild(taskRow);
