@@ -1,3 +1,51 @@
+const token = 'VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q'
+const apiUrl = 'https://demo2.z-bit.ee/tasks'
+
+async function postWithBearer(apiUrl, data ) {
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+
+  } catch (error) {
+    console.error('Error in POST request:', error);
+    throw error;
+  }
+
+}
+
+async function deleteWithBearer(url) {
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return true; // success
+  } catch (error) {
+    console.error('Error in DELETE request:', error);
+    throw error;
+  }
+}
+
 const tasks = [
     {
         id: 1,
@@ -7,7 +55,7 @@ const tasks = [
     {
         id: 2,
         name: 'Task 2',
-        completed: true
+        completed: false
     }
 ];
 let lastTaskId = 2;
@@ -23,11 +71,28 @@ window.addEventListener('load', () => {
     tasks.forEach(renderTask);
 
     // kui nuppu vajutatakse siis lisatakse uus task
-    addTask.addEventListener('click', () => {
+    addTask.addEventListener('click', async () => {
+
         const task = createTask(); // Teeme kõigepealt lokaalsesse "andmebaasi" uue taski
         const taskRow = createTaskRow(task); // Teeme uue taski HTML elementi mille saaks lehe peale listi lisada
         taskList.appendChild(taskRow); // Lisame taski lehele
-    });
+
+        const apiPayload = {
+      title: task.name,
+      desc: ""
+    };
+
+    try {
+      const result = await postWithBearer(apiUrl, apiPayload);
+      console.log('Task saved to API:', result);
+
+      // Update local task with API response
+      task.id = result.id;
+      task.completed = result.marked_as_done;
+    } catch (err) {
+      console.error('Failed to save task:', err);
+    }
+  });
 });
 
 function renderTask(task) {
@@ -58,10 +123,19 @@ function createTaskRow(task) {
     checkbox.checked = task.completed;
 
     const deleteButton = taskRow.querySelector('.delete-task');
-    deleteButton.addEventListener('click', () => {
-        taskList.removeChild(taskRow);
-        tasks.splice(tasks.indexOf(task), 1);
-    });
+deleteButton.addEventListener('click', async () => {
+  try {
+    
+    await deleteWithBearer(`${apiUrl}/${task.id}`);
+    console.log(`Task ${task.id} deleted from API`);
+
+    taskList.removeChild(taskRow);
+    tasks.splice(tasks.indexOf(task), 1);
+
+  } catch (err) {
+    console.error('Failed to delete task:', err);
+  }
+});
 
     // Valmistame checkboxi ette vajutamiseks
     hydrateAntCheckboxes(taskRow);
