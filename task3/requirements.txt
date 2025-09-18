@@ -2,3 +2,16 @@ Thunder Client VSC
 Live Server
 
 task3? https://www.freecodecamp.org/news/learn-crud-operations-in-javascript-by-building-todo-app/
+
+
+
+Mina user
+
+{
+  "id": 1263,
+  "username": "allan.miljan@tptlive.ee",
+  "firstname": "Allan",
+  "lastname": "Miljan",
+  "created_at": "2025-09-18 10:48:09",
+  "access_token": "VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q"
+}
