@@ -1,6 +1,29 @@
 const token = 'VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q'
 const apiUrl = 'https://demo2.z-bit.ee/tasks'
 
+
+async function getWithBearer(apiUrl) {
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error in GET request:', error);
+    throw error;
+  }
+}
+
+
 async function postWithBearer(apiUrl, data ) {
   try {
     const response = await fetch(apiUrl, {
@@ -39,32 +62,24 @@ async function deleteWithBearer(url) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    return true; // success
+    return true;
   } catch (error) {
     console.error('Error in DELETE request:', error);
     throw error;
   }
 }
 
-const tasks = [
-    {
-        id: 1,
-        name: 'Task 1',
-        completed: false
-    },
-    {
-        id: 2,
-        name: 'Task 2',
-        completed: false
-    }
-];
-let lastTaskId = 2;
+
+const tasks = [];
+
+let lastTaskId = 0;
 
 let taskList;
 let addTask;
 
 // kui leht on brauseris laetud siis lisame esimesed taskid lehele
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+    
     taskList = document.querySelector('#task-list');
     addTask = document.querySelector('#add-task');
 
@@ -86,7 +101,6 @@ window.addEventListener('load', () => {
       const result = await postWithBearer(apiUrl, apiPayload);
       console.log('Task saved to API:', result);
 
-      // Update local task with API response
       task.id = result.id;
       task.completed = result.marked_as_done;
     } catch (err) {
