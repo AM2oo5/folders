@@ -1,2 +1,5 @@
 Express 
 CSV-parser
+
+Küsi AI mis on req ja res mida teha saab
+miks Const siistulevad sulud ja siis tuleb =
