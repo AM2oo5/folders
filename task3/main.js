@@ -56,7 +56,7 @@ async function putMethod(apiUrl, data) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer VqCuqVeFLV6sP6mgkp9B4LO_oQXPtq2Q`
             },
             body: JSON.stringify(data)
         });
